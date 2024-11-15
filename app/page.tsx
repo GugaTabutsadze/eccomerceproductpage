@@ -1,95 +1,48 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+import Navigation from "./components/Nav/Navigation";
+import Herosection from "./components/Herosection/Herosection";
+import { useState } from "react";
+
+interface CartItem {
+  title: string;
+  price: number;
+  quantity: number;
+  img: string;
+}
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  const addToCart = (item:Omit<CartItem, "quantity">) => {
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find((cartItem) => cartItem.title === item.title);
+      if (existingItem) {
+        return prevItems.map((cartItem) =>
+          cartItem.title === item.title
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
+        );
+      } else {
+        return [...prevItems, { ...item, quantity: 1 }];
+      }
+    });
+  };
+       const updateQuantity = (id:string, increment:number) => {
+        console.log(`Updating quantity for id: ${id} with increment: ${increment}`);
+        setCartItems((prevItems) =>
+          prevItems.map((item) =>
+            item.title === id
+              ? { ...item, quantity: Math.max(1, (item.quantity || 1) + increment) }
+              : item
+          )
+        );
+      };
+
+  return (
+    <div className="container relative w-full mx-auto max-w-[1440px]">
+      <Navigation cartItems={cartItems} setCartItems={setCartItems}/>
+      <Herosection cartItems={cartItems} addToCart={addToCart} updateQuantity={updateQuantity}/>
     </div>
   );
 }
